@@ -1,0 +1,110 @@
+basePath: /api/v1
+definitions:
+  models.TransferRequest:
+    properties:
+      amount:
+        description: Amount to transfer
+        type: number
+      from:
+        description: Source account ID
+        type: string
+      to:
+        description: Destination account ID
+        type: string
+    type: object
+  models.TransferResponse:
+    properties:
+      message:
+        description: Optional error or success message
+        type: string
+      success:
+        description: Indicates if transfer was successful
+        type: boolean
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API for money transfers between accounts
+  title: Money Transfer API
+  version: "1.0"
+paths:
+  /balance/{account}:
+    get:
+      consumes:
+      - application/json
+      description: Returns the current balance of the specified account
+      parameters:
+      - description: Account ID
+        in: path
+        name: account
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response with balance
+          schema:
+            additionalProperties:
+              type: number
+            type: object
+        "404":
+          description: Account not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get account balance
+      tags:
+      - balance
+  /transfer:
+    post:
+      consumes:
+      - application/json
+      description: Transfers specified amount from one account to another
+      parameters:
+      - description: Transfer details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.TransferRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful transfer
+          schema:
+            $ref: '#/definitions/models.TransferResponse'
+        "400":
+          description: Validation error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Account not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Execute money transfer between accounts
+      tags:
+      - transfer
+produces:
+- application/json
+schemes:
+- http
+swagger: "2.0"

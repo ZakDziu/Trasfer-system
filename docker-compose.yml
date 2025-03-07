@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  app:
+    build: 
+      context: .
+      target: dev
+    container_name: money_transfer_app
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    volumes:
+      - .:/app
+      - go-modules:/go/pkg/mod
+    env_file:
+      - .env
+    environment:
+      - GIN_MODE=debug
+      - GO_ENV=${GO_ENV:-development}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: money_transfer_db
+    command: >
+      bash -c "
+        echo \"CREATE DATABASE money_transfer_test;\" > /docker-entrypoint-initdb.d/init.sql;
+        docker-entrypoint.sh postgres
+      "
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  postgres_test:
+    image: postgres:15-alpine
+    container_name: money_transfer_test_db
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=money_transfer_test
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  postgres_test_data:
+  go-modules: 

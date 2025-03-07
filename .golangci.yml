@@ -1,0 +1,40 @@
+linters:
+  enable:
+    - gofmt
+    - errcheck
+    - staticcheck
+    - gosimple
+    - ineffassign
+    - typecheck
+    - revive
+    - gosec
+    - unconvert
+    - goconst
+    - misspell
+    - lll
+    - prealloc
+
+linters-settings:
+  govet:
+    check-shadowing: true
+  golint:
+    min-confidence: 0
+  lll:
+    line-length: 140
+  misspell:
+    locale: US
+
+run:
+  deadline: 5m
+  tests: true
+  skip-dirs:
+    - internal/api/docs
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - lll
+        - funlen
+
+  max-same-issues: 3 
