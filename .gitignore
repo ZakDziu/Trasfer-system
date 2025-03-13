@@ -36,4 +36,4 @@ vendor/
 # golangci-lint cache
 .golangci-lint-cache/
 
-.idea
+.idea/*
